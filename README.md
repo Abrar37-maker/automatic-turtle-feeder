@@ -121,8 +121,6 @@ See detailed schematic tables in [`hardware/wiring_and_pinout.md`](./hardware/wi
 ## 📁 Repository Structure
 ```
 automatic-turtle-feeder/
-├── cad/                          # 3D printable models (STL, STEP, CAD files)
-│   └── README.md                 # Specifications for printed mechanical components
 ├── hardware/                     # Electrical schematics & wiring specifications
 │   └── wiring_and_pinout.md      # Pin mapping, power rails, and electrical specifications
 ├── src/                          # Firmware source code
