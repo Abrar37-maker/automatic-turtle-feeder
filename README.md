@@ -1,11 +1,11 @@
 # Automatic Turtle Feeder
 
-An intelligent, IoT-enabled automated feeding and monitoring system designed for pet turtles and aquatic reptiles. Powered by the **ESP32**, this system combines dual-motor actuation, ultrasonic feed-level telemetry, infrared bowl-safety interlocks, and an embedded local web dashboard.
+An intelligent, IoT-enabled automated feeding and monitoring system designed for pet turtles. Powered by the **ESP32**, this system combines dual-motor actuation, ultrasonic feed-level telemetry, infrared bowl-safety interlocks, and an embedded local web dashboard.
 
 ---
 
 ## 📌 Project Overview
-The **Automatic Turtle Feeder** solves the challenge of regular, accurate, and hygienic feeding for aquatic reptiles. Overfeeding or missed feedings severely compromise water quality and turtle health. This device automates dispensing schedules, monitors hopper storage, verifies bowl alignment before opening food gates, and provides real-time telemetry over local Wi-Fi.
+The **Automatic Turtle Feeder** solves the challenge of regular, accurate, and hygienic feeding for pet turtles. Overfeeding or missed feedings severely compromise water quality and turtle health. This device automates dispensing schedules, monitors hopper storage, verifies bowl alignment before opening food gates, and provides real-time telemetry over local Wi-Fi.
 
 ### Key Features
 - **Dual-Actuation Dispensing**:
@@ -31,7 +31,7 @@ The **Automatic Turtle Feeder** solves the challenge of regular, accurate, and h
 
 ## 🛠️ Individual Contributions
 As an individual project, all facets of engineering, implementation, and documentation were performed solely by **Abrar Zaheen Suham**:
-- **Firmware Architecture**: Designed the non-blocking state machine in C++ / Arduino framework managing actuation delays, timers, debouncing, and sensor polling concurrently.
+- **Firmware Architecture**: Designed the non-blocking state machine in C++ / Arduino framework managing actuation delays and timers.
 - **Actuation & Motor Control**: Programmed PWM-driven H-Bridge directional control for hopper jittering and calibrated the micro servo gate sweep angle.
 - **Sensor Calibration & Digital Filtering**: Implemented a moving-average filter and outlier rejection algorithm on ultrasonic sonar echo timings to stabilize food level readings.
 - **IoT & Web Engineering**: Built the onboard ESP32 web server, custom dark-theme HTML/CSS/JavaScript dashboard, REST API endpoints (`/api/status`, `/api/logs`), and persistent NVS flash storage for historical feeding logs.
