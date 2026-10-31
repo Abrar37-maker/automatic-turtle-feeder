@@ -40,9 +40,8 @@ As an individual project, all facets of engineering, implementation, and documen
 ---
 
 ## 🎥 Project Demonstration
-- **Video Link**: [![Watch Demo](https://img.shields.io/badge/YouTube-Watch%20Demo-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/)
-  > *Direct link: [https://www.youtube.com/watch?v=YOUR_VIDEO_ID](https://www.youtube.com/)*  
-  *(Update with your YouTube video URL upon upload).*
+- **Video Link**: [![Watch Demo](https://img.shields.io/badge/YouTube-Watch%20Demo-red?style=for-the-badge&logo=youtube)](https://youtu.be/kWpr0NYigxg)
+  > *Direct link: [https://youtu.be/kWpr0NYigxg](https://youtu.be/kWpr0NYigxg)*
 
 ---
 
