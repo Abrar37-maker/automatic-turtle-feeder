@@ -1,91 +1,134 @@
 # Automatic Turtle Feeder
 
-An automated feeding system engineered to dispense food portions accurately for turtles at scheduled intervals.
+An intelligent, IoT-enabled automated feeding and monitoring system designed for pet turtles and aquatic reptiles. Powered by the **ESP32**, this system combines dual-motor actuation, ultrasonic feed-level telemetry, infrared bowl-safety interlocks, and an embedded local web dashboard.
 
 ---
 
 ## 📌 Project Overview
-The **Automatic Turtle Feeder** is an embedded mechatronics project designed to automate the feeding process for pet turtles and aquatic reptiles. The system ensures regular feeding, prevents overfeeding or water fouling, and allows turtle owners to maintain feeding routines effortlessly.
+The **Automatic Turtle Feeder** solves the challenge of regular, accurate, and hygienic feeding for aquatic reptiles. Overfeeding or missed feedings severely compromise water quality and turtle health. This device automates dispensing schedules, monitors hopper storage, verifies bowl alignment before opening food gates, and provides real-time telemetry over local Wi-Fi.
 
 ### Key Features
-- **Precise Portion Control**: Metered food dispensing mechanism to prevent overfeeding and tank contamination.
-- **Automated Scheduling**: Timed intervals for regular feeding routines.
-- **Moisture-Resistant Design**: Enclosed food hopper to keep pellets dry in humid aquarium environments.
-- **Reliable Actuation**: Custom motor drive designed for torque, food pellet agitation, and jam prevention.
+- **Dual-Actuation Dispensing**:
+  - **SG90 Micro Servo**: Operates a metered dispensing gate (0° sealed shut, 35° open).
+  - **DC Agitation Motor (L298N H-Bridge)**: High-frequency bi-directional "jiggle" agitation (120ms forward, 60ms pause, 120ms backward) that prevents dry pellet bridging and chute clumping.
+- **Smart Safety & Telemetry**:
+  - **Ultrasonic Level Telemetry (HC-SR04)**: Dynamic 5-sample moving-average distance filter converts hopper depth into an accurate remaining food percentage.
+  - **Infrared Bowl Safety Interlock**: Detects food dish placement; disables the dispensing servo and triggers an audio-visual alarm if the bowl is missing.
+  - **DS1302 Real-Time Clock**: Hardware RTC keeps accurate time across power cycles for automated feeding intervals.
+- **Dual User Interface**:
+  - **Local Hardware UI**: 16x2 I2C LCD display, RGB status LEDs, piezo buzzer, and manual control/calibration buttons.
+  - **Embedded IoT Web Dashboard**: Asynchronous HTTP web server serving a responsive dark-mode web app with live JSON telemetry and non-volatile flash logs (`Preferences.h`).
 
 ---
 
 ## 👥 Team Information
-| Name | Student / Member ID | Role / Specialization | Contact / Email |
-| :--- | :--- | :--- | :--- |
-| **Abrar Zaheen Suham** | *[Insert ID]* | Team Lead / *[Insert Role]* | `abrarzaheen21@gmail.com` |
-| *[Member 2 Name]* | *[Insert ID]* | *[Insert Role]* | *[Insert Email]* |
-| *[Member 3 Name]* | *[Insert ID]* | *[Insert Role]* | *[Insert Email]* |
+- **Project Type**: Individual Project
+- **Developer / Student**: **Abrar Zaheen Suham**
+- **Email**: `abrarzaheen21@gmail.com`
+- **Platform**: ESP32 Dev Module (Dev1)
 
 ---
 
 ## 🛠️ Individual Contributions
-- **Abrar Zaheen Suham**:
-  - *[e.g., System architecture, firmware development, circuit integration, testing]*
-- **[Member 2 Name]**:
-  - *[e.g., 3D CAD modeling, mechanical design of the hopper and dispenser, 3D printing]*
-- **[Member 3 Name]**:
-  - *[e.g., Power management, testing & calibration, documentation, video editing]*
+As an individual project, all facets of engineering, implementation, and documentation were performed solely by **Abrar Zaheen Suham**:
+- **Firmware Architecture**: Designed the non-blocking state machine in C++ / Arduino framework managing actuation delays, timers, debouncing, and sensor polling concurrently.
+- **Actuation & Motor Control**: Programmed PWM-driven H-Bridge directional control for hopper jittering and calibrated the micro servo gate sweep angle.
+- **Sensor Calibration & Digital Filtering**: Implemented a moving-average filter and outlier rejection algorithm on ultrasonic sonar echo timings to stabilize food level readings.
+- **IoT & Web Engineering**: Built the onboard ESP32 web server, custom dark-theme HTML/CSS/JavaScript dashboard, REST API endpoints (`/api/status`, `/api/logs`), and persistent NVS flash storage for historical feeding logs.
+- **Circuit Design & Hardware Integration**: Designed the unified power and logic pinout interconnecting the ESP32, L298N motor driver, DS1302 RTC, I2C LCD, IR sensor, HC-SR04 sonar, buzzer, and indicator LEDs.
 
 ---
 
 ## 🎥 Project Demonstration
 - **Video Link**: [![Watch Demo](https://img.shields.io/badge/YouTube-Watch%20Demo-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/)
-  > *Direct link: [Insert YouTube Link Here]*
+  > *Direct link: [https://www.youtube.com/watch?v=YOUR_VIDEO_ID](https://www.youtube.com/)*  
+  *(Update with your YouTube video URL upon upload).*
+
+---
+
+## 🔬 Motor Selection Justification
+
+The project integrates two distinct motors—an **SG90 Micro Servo** and a **DC Motor driven by an L298N Dual H-Bridge**—each deliberately selected to fulfill distinct physical and mechanical requirements:
+
+### 1. SG90 Micro Servo (Dispenser Gate Control)
+- **Precise Closed-Loop Angular Control**: The dispensing gate requires reliable, repeatable angular positioning between `0°` (fully sealed) and `35°` (calibrated opening). Because the SG90 features an internal potentiometer and feedback control circuit, the ESP32 can command exact positions via standard 50 Hz PWM without external encoders or homing limit switches.
+- **Holding Torque vs. Compact Form Factor**: With ~1.8 kg·cm of stall torque at 5V and weighing only 9 grams, the SG90 provides sufficient force to open and shut against loose food pellets while maintaining a lightweight footprint that fits cleanly above the feeding chute.
+- **Rapid Transit & Clean Shutoff**: Operating at ~0.10 sec/60°, the servo opens quickly for a precise 3-second feeding window and snaps shut, avoiding food dribble and overfeeding.
+- **Safety Detach Feature**: When the IR sensor detects the feeding bowl is missing, the firmware calls `myServo.detach()`, removing active power from the motor windings to conserve power and prevent unintended dispensing.
+
+### 2. DC Agitation Motor with L298N Dual H-Bridge (Hopper Anti-Jamming & Agitation)
+- **Overcoming Pellet Bridging & Friction**: Dry turtle pellets are irregular, light, and prone to "arching" or "bridging" over narrow dispenser funnels under gravity. Continuous rotation or static vibration often packs the pellets tighter.
+- **Rapid Bi-Directional Jitter Cycle**: By pairing a DC motor with an **L298N H-Bridge**, the firmware executes high-frequency directional reversal (`jiggleForward()` for 120ms &rarr; pause for 60ms &rarr; `jiggleBackward()` for 120ms) under PWM speed control (`MOTOR_PWM_VALUE = 130`). This back-and-forth agitation breaks pellet clumps dynamically, ensuring continuous gravity feed through the servo gate.
+- **Inductive Surge & Current Handling**: DC motors produce heavy inrush currents and inductive back-EMF spikes during rapid reversals. The L298N driver isolates high-current motor power from the ESP32 logic rail, handling up to 2A per channel with built-in protection.
+- **Cost-Efficiency & Reliability**: A DC motor + L298N solution provides far higher instantaneous torque and durability for rapid shaking than miniature stepper motors at a fraction of the cost.
 
 ---
 
 ## ⚙️ Setup & Reproduction Instructions
 
-### 1. Hardware Requirements
-- **Microcontroller**: *[e.g., Arduino Uno / ESP32 / Raspberry Pi Pico / STM32]*
-- **Actuators/Motors**: *[e.g., SG90 Servo / 28BYJ-48 Stepper Motor + ULN2003 / DC Gear Motor]*
-- **Sensors/RTC**: *[e.g., DS3231 RTC Module / Infrared sensor]*
-- **Power Supply**: *[e.g., 5V 2A DC Adapter or Li-ion Battery]*
-- **Chassis/Dispenser**: 3D-printed parts located in [`cad/`](./cad/)
+### 1. Hardware Bill of Materials (BOM)
+- **Microcontroller**: ESP32 Dev Module (Dev1, 30-pin or 38-pin)
+- **Gate Actuator**: TowerPro SG90 9g Micro Servo
+- **Agitator Motor**: 5V–9V DC Toy/Gear Motor
+- **Motor Driver**: L298N Dual H-Bridge Driver Module
+- **Distance Sensor**: HC-SR04 Ultrasonic Sonar Module
+- **Safety Sensor**: TCRT5000 / Standard Active-LOW Infrared Proximity Module
+- **Real-Time Clock**: DS1302 3-Wire RTC Module with CR2032 coin cell
+- **Display**: 16x2 Character LCD with PCF8574 I2C Backpack
+- **User Interface**: 3x Momentary Tactile Push Buttons, 1x Active/Passive Buzzer, 3x 5mm LEDs (Red, Green, Blue) with 220Ω resistors
+- **Power Supply**: 5V 2A DC Regulated Supply (or dual rail 5V logic / 9V motor supply)
 
-### 2. Software & Dependencies
-- **IDE**: Arduino IDE / PlatformIO / VS Code
-- **Libraries**:
-  - *[List required libraries, e.g. `<Servo.h>`, `<Wire.h>`, `<RTClib.h>`]*
+### 2. Pinout & Wiring Connections
+See detailed schematic tables in [`hardware/wiring_and_pinout.md`](./hardware/wiring_and_pinout.md).
 
-### 3. Wiring & Assembly
-1. Mount the 3D-printed hopper and dispenser body using M3 screws.
-2. Connect the motor and sensors according to the schematics in [`hardware/`](./hardware/).
-3. Connect the microcontroller to your computer via USB.
+| Subsystem | Component | Component Pin | ESP32 GPIO |
+| :--- | :--- | :--- | :--- |
+| **Servo Gate** | SG90 Servo | Signal (PWM) | **GPIO 13** |
+| **Agitator Driver** | L298N Motor Driver | ENA (PWM) / IN1 / IN2 | **GPIO 4 / GPIO 18 / GPIO 19** |
+| **Food Telemetry** | Ultrasonic (HC-SR04) | TRIG / ECHO | **GPIO 25 / GPIO 26** |
+| **Bowl Interlock** | IR Proximity Sensor | Digital OUT | **GPIO 32** |
+| **Real-Time Clock** | DS1302 RTC | DAT / CLK / RST | **GPIO 2 / GPIO 5 / GPIO 15** |
+| **Display** | 16x2 LCD (I2C) | SDA / SCL | **GPIO 21 / GPIO 22** |
+| **Controls** | Push Buttons | Manual / Reset / Auto | **GPIO 14 / GPIO 27 / GPIO 34** |
+| **Status LEDs** | LEDs (220Ω) | Red / Green / Blue | **GPIO 16 / GPIO 17 / GPIO 23** |
+| **Alarm** | Buzzer | Positive (+) | **GPIO 33** |
 
-### 4. Running the Code
-1. Open the source code located in [`src/`](./src/).
-2. Select your board and COM port in the IDE.
-3. Compile and upload the sketch to the microcontroller.
-4. Power the system and verify the dispensing cycle.
+### 3. Software Installation & Dependencies
+1. Install [Arduino IDE](https://www.arduino.cc/en/software) (or VS Code with PlatformIO).
+2. In Arduino IDE Settings, add the ESP32 board manager URL:
+   ```text
+   https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+   ```
+3. Install the required libraries via the Arduino Library Manager:
+   - `ESP32Servo` by Kevin Harrington
+   - `LiquidCrystal_I2C` by Frank de Brabander
+   - `Rtc by Makuna` (for DS1302)
+   - Built-in ESP32 libraries: `WiFi`, `WebServer`, `Preferences`, `Wire`
 
----
-
-## 🔬 Motor Selection Justification
-> *[Detailed engineering justification for chosen motors]*
-
-### Chosen Motor: *[e.g., 28BYJ-48 Stepper Motor with ULN2003 Driver / SG90 Micro Servo / NEMA 17]*
-- **Torque Requirements**: *[Explanation of why the motor has sufficient torque to rotate the auger/drum without stalling under the weight of pellets]*
-- **Positioning & Control Accuracy**: *[Why this motor allows exact dispensing portions (e.g., step angle / angular position control)]*
-- **Power Consumption & Form Factor**: *[Compact size to fit the enclosure, low current draw compatible with small power supplies]*
-- **Cost & Availability**: *[Budget-friendly, durable, and widely accessible for prototyping]*
-- **Jam Prevention**: *[Ability to reverse or sweep back and forth to clear pellet blockages]*
+### 4. Flashing & Running
+1. Open [`src/automatic-turtle-feeder.ino`](./src/automatic-turtle-feeder.ino) in Arduino IDE.
+2. Update the Wi-Fi credentials under Section 1 if using a different local network:
+   ```cpp
+   const char* IOT_WIFI_SSID = "Your_WiFi_SSID";
+   const char* IOT_WIFI_PASSWORD = "Your_WiFi_Password";
+   ```
+3. Select board **"DOIT ESP32 DEVKIT V1"** (or **"ESP32 Dev Module"**).
+4. Connect the ESP32 via USB and select the corresponding COM port.
+5. Click **Upload**.
+6. Open the Serial Monitor at **115200 baud** to view boot logs and the assigned local IP address for the IoT dashboard (e.g. `http://192.168.x.x`).
 
 ---
 
 ## 📁 Repository Structure
 ```
 automatic-turtle-feeder/
-├── cad/                  # 3D models (STL, STEP, CAD design files)
-├── hardware/             # Circuit schematics, wiring diagrams, pinouts, BOM
-├── src/                  # Firmware and microcontroller source code
-├── docs/                 # Documentation, photos, diagrams
-├── .gitignore            # Git ignore file for temporary & build artifacts
-└── README.md             # Project documentation & submission details
+├── cad/                          # 3D printable models (STL, STEP, CAD files)
+│   └── README.md                 # Specifications for printed mechanical components
+├── hardware/                     # Electrical schematics & wiring specifications
+│   └── wiring_and_pinout.md      # Pin mapping, power rails, and electrical specifications
+├── src/                          # Firmware source code
+│   └── automatic-turtle-feeder.ino # Complete ESP32 firmware with IoT Web Dashboard
+├── docs/                         # Additional documentation and assets
+├── .gitignore                    # Build and system artifact ignore rules
+└── README.md                     # Comprehensive project documentation & submission
 ```
