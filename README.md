@@ -121,6 +121,9 @@ See detailed schematic tables in [`hardware/wiring_and_pinout.md`](./hardware/wi
 ## 📁 Repository Structure
 ```
 automatic-turtle-feeder/
+├── cad/                          # 3D CAD models (Fusion 360 .f3d assembly)
+│   ├── Autonomous Pet Turtle Feeder.f3d
+│   └── README.md                 # CAD model details & export instructions
 ├── hardware/                     # Electrical schematics & wiring specifications
 │   └── wiring_and_pinout.md      # Pin mapping, power rails, and electrical specifications
 ├── src/                          # Firmware source code
