@@ -12,7 +12,6 @@ This directory contains the 3D Computer-Aided Design (CAD) files for the **Autom
     - Servo-actuated gate mechanism
     - Agitation motor mount and internal impeller
     - Sensor brackets (HC-SR04 sonar overhead mount, IR bowl alignment sensor slot)
-    - Electronics mounting enclosure for ESP32 and L298N driver
 
 ---
 
